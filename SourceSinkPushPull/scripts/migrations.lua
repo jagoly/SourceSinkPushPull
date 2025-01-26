@@ -7,8 +7,9 @@ local flib_migration = require("__flib__.migration")
 local migrations = {
     ["0.3.4"] = function()
         for _, station in pairs(storage.stations) do
-            station.stop.trains_limit = nil
-            station.network = station.stop.surface.name
+            if station.stop.valid then
+                station.stop.trains_limit = nil
+            end
         end
     end,
     ["0.3.2"] = function()

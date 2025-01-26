@@ -534,11 +534,9 @@ end
 ---@param stop LuaEntity
 function create_direct_to_station_order(stop)
     -- Function from Cybersyn
-    local conditions_direct_to_station = { { type = "time", compare_type = "and", ticks = 1 } }
     return {
         rail = stop.connected_rail,
         rail_direction = stop.connected_rail_direction,
-        wait_conditions = conditions_direct_to_station,
     }
 end
 
