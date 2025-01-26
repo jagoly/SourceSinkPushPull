@@ -338,32 +338,31 @@ local function prepare_for_tick_dispatch()
     storage.tick_state = "DISPATCH"
 end
 
-local function tick_dispatch()
-    local network_name, item_key ---@type NetworkName, ItemKey
-    local network, class_name ---@type Network, ClassName
-    local network_haulers ---@type {[ClassName]: HaulerId[]}
+---@param network Network
+---@param item_key NetworkItemKey
+---@return HaulerId|nil
+local function find_hauler_for_item(network, item_key)
+    local item = network.items[item_key]
+    local class_name = item.class
+    if network.at_depot_haulers[class_name] then
+        return list_pop_random_or_destroy(network.at_depot_haulers, class_name)
+    end
 
-    repeat
-        local network_item_key = list_pop_random_if_any(storage.dispatch_items)
-        if not network_item_key then return true end
+    if network.to_depot_haulers[class_name] and network.classes[class_name].bypass_depot then
+        return list_pop_random_or_destroy(network.to_depot_haulers, class_name)
+    end
 
-        if storage.disabled_items[network_item_key] then goto continue end
+    return nil
+end
 
-        network_name, item_key = string.match(network_item_key, "(.-):(.+)")
-        network = storage.networks[network_name]
-        class_name = network.items[item_key].class
-
-        network_haulers = network.at_depot_haulers
-        if not network_haulers[class_name] then
-            network_haulers = network.to_depot_haulers
-            if not network_haulers[class_name] then goto continue end
-            if not network.classes[class_name].bypass_depot then goto continue end
-        end
-
-        break; ::continue::
-    until false
-
-    local hauler_id = list_pop_random_or_destroy(network_haulers, class_name)
+--- Return true on success
+---@return boolean
+local function try_dispatch_hauler(network, item_key)
+    -- local hauler_id = list_pop_random_or_destroy(network_haulers, class_name)
+    local hauler_id = find_hauler_for_item(network, item_key)
+    if hauler_id == nil then
+        return false
+    end
     local hauler = storage.haulers[hauler_id]
     hauler.to_depot = nil
     hauler.at_depot = nil
@@ -384,7 +383,28 @@ local function tick_dispatch()
     set_hauler_status(hauler, { "sspp-alert.picking-up-cargo" }, item_key, provide_station.stop)
     send_hauler_to_station(hauler, provide_station.stop)
 
-    return false
+    return true
+end
+
+local function tick_dispatch()
+    local network_name, item_key ---@type NetworkName, ItemKey
+    local network ---@type Network
+
+    repeat
+        local network_item_key = list_pop_random_if_any(storage.dispatch_items)
+        if not network_item_key then return true end
+
+        if storage.disabled_items[network_item_key] then goto continue end
+
+        network_name, item_key = string.match(network_item_key, "(.-):(.+)")
+        network = storage.networks[network_name]
+
+        if try_dispatch_hauler(network, item_key) then
+            return false
+        end
+
+        ::continue::
+    until false
 end
 
 --------------------------------------------------------------------------------
