@@ -83,13 +83,6 @@ local function on_train_changed_state(event)
         return
     end
 
-    if state == defines.train_state.destination_full then
-        set_hauler_status(hauler, { "sspp-alert.path-broken" })
-        send_alert_for_train(train, hauler.status)
-        train.manual_mode = true
-        return
-    end
-
     if hauler.to_provide then
         if hauler.to_provide.phase == "TRAVEL" then
             -- Only process if train is stopped at station, not a rail connection.
