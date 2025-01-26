@@ -83,7 +83,7 @@ local function on_train_changed_state(event)
         return
     end
 
-    if state == defines.train_state.no_path or state == defines.train_state.destination_full then
+    if state == defines.train_state.destination_full then
         set_hauler_status(hauler, { "sspp-alert.path-broken" })
         send_alert_for_train(train, hauler.status)
         train.manual_mode = true

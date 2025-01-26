@@ -533,6 +533,7 @@ end
 
 ---@param stop LuaEntity
 function create_direct_to_station_order(stop)
+    -- Function from Cybersyn
     local conditions_direct_to_station = { { type = "time", compare_type = "and", ticks = 1 } }
     return {
         rail = stop.connected_rail,
@@ -552,13 +553,6 @@ function send_hauler_to_station(hauler, station)
         create_direct_to_station_order(stop),
         { station = stop.backer_name } },
     }
-
-    local state = train.state
-    if state == defines.train_state.no_path then
-        set_hauler_status(hauler, { "sspp-alert.no-path-to-station" }, hauler.status_item, stop)
-        send_alert_for_train(train, hauler.status)
-        train.manual_mode = true
-    end
 end
 
 ---@param hauler Hauler
@@ -567,13 +561,6 @@ function send_hauler_to_named_stop(hauler, stop_name)
     local train = hauler.train
 
     train.schedule = { current = 1, records = { { station = stop_name } } }
-
-    local state = train.state
-    if state == defines.train_state.no_path or state == defines.train_state.destination_full then
-        set_hauler_status(hauler, { "sspp-alert.no-path-to-named-stop", stop_name }, hauler.status_item)
-        send_alert_for_train(train, hauler.status)
-        train.manual_mode = true
-    end
 end
 
 ---@param hauler Hauler
