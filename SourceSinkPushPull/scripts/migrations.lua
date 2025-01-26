@@ -5,6 +5,12 @@ local flib_migration = require("__flib__.migration")
 --------------------------------------------------------------------------------
 
 local migrations = {
+    ["0.3.4"] = function()
+        for _, station in pairs(storage.stations) do
+            station.stop.trains_limit = nil
+            station.network = station.stop.surface.name
+        end
+    end,
     ["0.3.2"] = function()
         for _, network in pairs(storage.networks) do
             for _, class in pairs(network.classes) do

@@ -548,7 +548,6 @@ function send_hauler_to_station(hauler, station)
     local train = hauler.train
     local stop = station.stop
 
-    stop.trains_limit = nil
     train.schedule = { current = 1, records = {
         create_direct_to_station_order(stop),
         { station = stop.backer_name } },
