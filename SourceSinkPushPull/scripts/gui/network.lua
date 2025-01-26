@@ -545,8 +545,25 @@ function gui.network_poll_finished(player_gui)
                 table_children[i + 6].caption = { "sspp-gui.fmt-item-demand", len_or_zero(push_tickets[item_key]), len_or_zero(pull_tickets[item_key]) }
                 table_children[i + 8].caption = { "sspp-gui.fmt-item-haulers", provide_total, request_total, liquidate_total }
 
+                local count_haulers = function(haulers)
+                    if not haulers then return end
+                    for _, hauler_id in pairs(haulers) do
+                        local hauler = storage.haulers[hauler_id]
+                        if hauler then
+                            local class_name = hauler.class
+                            class_hauler_totals[class_name] = (class_hauler_totals[class_name] or 0) + 1
+                        end
+                    end
+                end
                 local class_name = table_children[i + 2].text
-                class_hauler_totals[class_name] = (class_hauler_totals[class_name] or 0) + provide_total + request_total + liquidate_total
+                if class_name == "" then
+                    count_haulers(provide_haulers[item_key])
+                    count_haulers(request_haulers[item_key])
+                    count_haulers(at_depot_liquidate_haulers[item_key])
+                    count_haulers(to_depot_liquidate_haulers[item_key])
+                else
+                    class_hauler_totals[class_name] = (class_hauler_totals[class_name] or 0) + provide_total + request_total + liquidate_total
+                end
             else
                 table_children[i + 6].caption = ""
                 table_children[i + 8].caption = ""
