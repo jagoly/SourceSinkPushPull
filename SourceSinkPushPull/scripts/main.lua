@@ -92,7 +92,7 @@ local function on_train_changed_state(event)
 
     if hauler.to_provide then
         if hauler.to_provide.phase == "TRAVEL" then
-            if state == defines.train_state.wait_station then
+            if state == defines.train_state.wait_station and train.station ~= nil then
                 main.hauler_arrived_at_provide_station(hauler)
             end
         elseif hauler.to_provide.phase == "TRANSFER" then
@@ -105,7 +105,7 @@ local function on_train_changed_state(event)
 
     if hauler.to_request then
         if hauler.to_request.phase == "TRAVEL" then
-            if state == defines.train_state.wait_station then
+            if state == defines.train_state.wait_station and train.station ~= nil then
                 main.hauler_arrived_at_request_station(hauler)
             end
         elseif hauler.to_request.phase == "TRANSFER" then

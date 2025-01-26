@@ -531,6 +531,16 @@ function set_haulers_to_manual(hauler_ids, message, item, stop)
     end
 end
 
+---@param stop LuaEntity
+function create_direct_to_station_order(stop)
+    local conditions_direct_to_station = { { type = "time", compare_type = "and", ticks = 1 } }
+    return {
+        rail = stop.connected_rail,
+        rail_direction = stop.connected_rail_direction,
+        wait_conditions = conditions_direct_to_station,
+    }
+end
+
 ---@param hauler Hauler
 ---@param station Station
 function send_hauler_to_station(hauler, station)
@@ -538,9 +548,10 @@ function send_hauler_to_station(hauler, station)
     local stop = station.stop
 
     stop.trains_limit = nil
-    train.schedule = { current = 1, records = { { station = stop.backer_name } } }
-    train.recalculate_path()
-    stop.trains_limit = 0
+    train.schedule = { current = 1, records = {
+        create_direct_to_station_order(stop),
+        { station = stop.backer_name } },
+    }
 
     local state = train.state
     if state == defines.train_state.no_path then
@@ -556,7 +567,6 @@ function send_hauler_to_named_stop(hauler, stop_name)
     local train = hauler.train
 
     train.schedule = { current = 1, records = { { station = stop_name } } }
-    train.recalculate_path()
 
     local state = train.state
     if state == defines.train_state.no_path or state == defines.train_state.destination_full then

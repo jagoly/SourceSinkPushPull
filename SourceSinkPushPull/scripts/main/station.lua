@@ -162,7 +162,7 @@ function main.stop_built(stop, ghost_unit_number)
     if not read_stop_flag(stop, e_stop_flags.custom_name) then
         stop.backer_name = "[virtual-signal=signal-ghost]"
     end
-    stop.trains_limit = 0
+    stop.trains_limit = nil
 
     local stop_cb = stop.get_or_create_control_behavior() --[[@as LuaTrainStopControlBehavior]]
     stop_cb.read_from_train = true
