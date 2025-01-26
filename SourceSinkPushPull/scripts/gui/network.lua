@@ -393,7 +393,7 @@ local function item_from_row(table_children, i)
     if not elem_value then return end
 
     local class = table_children[i + 2].text
-    if class == "" then return end -- NOTE: class does not need to actually exist yet
+    -- if class == "" then return end -- NOTE: class does not need to actually exist yet
 
     local delivery_size = tonumber(table_children[i + 3].text)
     if not delivery_size then return end
