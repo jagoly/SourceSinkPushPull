@@ -338,32 +338,72 @@ local function prepare_for_tick_dispatch()
     storage.tick_state = "DISPATCH"
 end
 
+---@param network Network
+---@param item_key NetworkItemKey
+---@return HaulerId|nil
+local function find_hauler_for_item(network, item_key)
+    local search_hauler_class = function(class_name)
+        if network.at_depot_haulers[class_name] then
+            return list_pop_random_or_destroy(network.at_depot_haulers, class_name)
+        end
+
+        if network.to_depot_haulers[class_name] and network.classes[class_name].bypass_depot then
+            return list_pop_random_or_destroy(network.to_depot_haulers, class_name)
+        end
+
+        return nil
+    end
+
+    local search_all_haulers = function(item_slots, fluid_capacity)
+        for class_name, class in pairs(network.classes) do
+            if class.fluid_capacity >= fluid_capacity and class.item_slot_capacity >= item_slots then
+                local hauler_id = search_hauler_class(class_name)
+                if hauler_id ~= nil then return hauler_id end
+            end
+        end
+    end
+
+    local item = network.items[item_key]
+    local class_name = item.class
+    if class_name ~= "" then
+        -- Use item class if defined
+        return search_hauler_class(class_name)
+    else
+        local prototype = prototypes.item[item.name]
+        if prototype then
+            -- Item prototype
+            return search_all_haulers(item.delivery_size / prototype.stack_size, 0)
+        else
+            -- Fluid prototype
+            return search_all_haulers(0, item.delivery_size)
+        end
+    end
+end
+
 local function tick_dispatch()
     local network_name, item_key ---@type NetworkName, ItemKey
-    local network, class_name ---@type Network, ClassName
-    local network_haulers ---@type {[ClassName]: HaulerId[]}
+    local network ---@type Network
+    local hauler_id ---@type HaulerId
 
     repeat
         local network_item_key = list_pop_random_if_any(storage.dispatch_items)
+        local found_hauler_id
         if not network_item_key then return true end
 
         if storage.disabled_items[network_item_key] then goto continue end
 
         network_name, item_key = string.match(network_item_key, "(.-):(.+)")
         network = storage.networks[network_name]
-        class_name = network.items[item_key].class
 
-        network_haulers = network.at_depot_haulers
-        if not network_haulers[class_name] then
-            network_haulers = network.to_depot_haulers
-            if not network_haulers[class_name] then goto continue end
-            if not network.classes[class_name].bypass_depot then goto continue end
+        found_hauler_id = find_hauler_for_item(network, item_key)
+        if found_hauler_id ~= nil then
+            hauler_id = found_hauler_id
+            break
         end
 
-        break; ::continue::
+        ::continue::
     until false
 
-    local hauler_id = list_pop_random_or_destroy(network_haulers, class_name)
     local hauler = storage.haulers[hauler_id]
     hauler.to_depot = nil
     hauler.at_depot = nil
