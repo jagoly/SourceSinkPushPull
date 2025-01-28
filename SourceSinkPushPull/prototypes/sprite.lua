@@ -83,6 +83,15 @@ sspp_name_icon = {
     flags = { "gui-icon" },
 }
 
+sspp_refresh_icon = {
+    type = "sprite",
+    name = "sspp-refresh-icon",
+    filename = "__SourceSinkPushPull__/graphics/gui/sspp-refresh-icon.png",
+    size = 32,
+    scale = 0.5,
+    flags = { "gui-icon" },
+}
+
 sspp_reset_icon = {
     type = "sprite",
     name = "sspp-reset-icon",

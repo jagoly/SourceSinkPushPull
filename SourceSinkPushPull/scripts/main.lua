@@ -67,7 +67,7 @@ local function on_train_changed_state(event)
     if is_manual and was_manual then return end
 
     if is_manual or was_manual then
-        gui.hauler_set_widget_enabled(train.id, is_manual)
+        gui.hauler_manual_mode_changed(train.id)
     end
 
     local hauler = storage.haulers[train.id]

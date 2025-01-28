@@ -139,13 +139,12 @@ function gui.refresh_table(table, from_row, to_row, old_dict, key_remove)
 end
 
 ---@param hauler_id HaulerId
----@param enabled boolean
-function gui.hauler_set_widget_enabled(hauler_id, enabled)
+function gui.hauler_manual_mode_changed(hauler_id)
     for _, player_gui in pairs(storage.player_guis) do
         if player_gui.train then
             if player_gui.train.id == hauler_id then
-                player_gui.elements.class_textbox.enabled = enabled
-                player_gui.elements.auto_train_class.enabled = player_gui.train.manual_mode
+                player_gui.elements.class_textbox.enabled = player_gui.train.manual_mode
+                player_gui.elements.class_auto_assign_button.enabled = player_gui.train.manual_mode
             end
         end
     end

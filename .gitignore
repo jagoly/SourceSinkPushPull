@@ -2,4 +2,5 @@
 .vscode/factorio/*
 .vscode/factorio-data/*
 .vscode/flib/*
-.vscode
+.vscode/launch.json
+.vscode/settings.json

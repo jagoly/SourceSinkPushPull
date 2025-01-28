@@ -31,6 +31,7 @@ data:extend({
     sspp_move_down_icon,
     sspp_move_up_icon,
     sspp_name_icon,
+    sspp_refresh_icon,
     sspp_reset_icon,
 })
 
